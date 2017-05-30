@@ -1,0 +1,8 @@
+rootProject.name = 'display_direct'
+include 'common'
+include 'distribution'
+include 'virtual_screen'
+include 'dashboard'
+include 'common_client'
+include 'common_web'
+

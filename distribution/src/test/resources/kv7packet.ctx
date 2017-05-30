@@ -1,0 +1,39 @@
+\GKV7turbo_planning|KV7turbo_planning|openOV ProvFr|||UTF-8|0.1|2016-11-16T04:43:47+01:00|﻿
+\TDATAOWNER|DATAOWNER|start object
+\LDataOwnerCode|DataOwnerType|DataOwnerName|DataOwnerCompanyNumber
+ALGEMEEN|ALG|ALGEMEEN|10
+ARR|PUCO|Arriva|1
+\TDESTINATION|DESTINATION|start object
+\LDataOwnerCode|DestinationCode|DestinationName50|DestinationName30|DestinationName24|DestinationName19|DestinationName16|DestinationDetail24|DestinationDetail19|DestinationDetail16|DestinationDisplay16
+ARR|1747|Harlingen Veerbootterminal|Harlingen Veerbootterminal|Harlingen|Harlingen|Harlingen|Veerbootterminal|Veerbootterminal||\0
+ARR|1701|Alkmaar Station|Alkmaar Station|Alkmaar Station|Alkmaar Station|Alkmaar|\0|\0|\0|\0
+\TTIMINGPOINT|TIMINGPOINT|start object
+\LDataOwnerCode|TimingPointCode|TimingPointName|TimingPointTown|LocationX_EW|LocationY_NS|LocationZ|StopAreaCode
+ALGEMEEN|20670050|Harlingen, Brugwachter Prins Hendrikbrug|Harlingen, Brugwachter Prins Hendrikbrug|156798|576535|\0|\0
+ALGEMEEN|20670070|Harlingen, Brugwachter brug Spoorstraat|Harlingen, Brugwachter brug Spoorstraat|157349|575981|\0|\0
+\TUSERTIMINGPOINT|USERTIMINGPOINT|start object
+\LDataOwnerCode|UserStopCode|TimingPointDataOwnerCode|TimingPointCode|GetIn|GetOut
+ARR|20670050|ALGEMEEN|20670050|0|0
+ARR|20670070|ALGEMEEN|20670070|0|0
+ARR|20671117|ALGEMEEN|20671117|1|1
+\TSTOPAREA|STOPAREA|start object
+\LDataOwnerCode|StopAreaCode|StopAreaName
+ALGEMEEN|HlgVee|Harlingen, Veerbootterminal
+ALGEMEEN|KwzKop|Afsluitdijk, Kop Afsluitdijk
+ALGEMEEN|mdmalk|Middenmeer, Alkmaarseweg
+ALGEMEEN|DovBus|Den Oever, Busstation
+\TLINE|LINE|start object
+\LDataOwnerCode|LinePlanningNumber|LinePublicNumber|LineName|LineVeTagNumber|TransportType
+ARR|19351|351|Alkmaar - Harlingen|351|BUS
+\TLOCALSERVICEGROUPPASSTIME|LOCALSERVICEGROUPPASSTIME|start object
+\LDataOwnerCode|LocalServiceLevelCode|LinePlanningNumber|JourneyNumber|FortifyOrderNumber|UserStopCode|UserStopOrderNumber|JourneyPatternCode|LineDirection|DestinationCode|TargetArrivalTime|TargetDepartureTime|SideCode|WheelChairAccessible|JourneyStopType|IsTimingStop|ProductFormulaType
+ARR|2541708|19351|7003|0|20670050|42|159968|1|1747|14:31:00|14:31:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|20670070|41|159968|1|1747|14:30:00|14:30:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|20671117|43|159968|1|1747|14:32:00|00:00:00|-|UNKNOWN|LAST|0|0
+ARR|2541708|19351|7003|0|20870020|33|159968|1|1747|14:12:00|14:12:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|20879990|35|159968|1|1747|14:14:00|14:14:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|20979990|32|159968|1|1747|14:11:00|14:11:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|21079990|31|159968|1|1747|14:05:00|14:05:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|21179990|30|159968|1|1747|13:56:00|13:56:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|21279990|29|159968|1|1747|13:53:00|13:53:00|-|UNKNOWN|INFOPOINT|0|0
+ARR|2541708|19351|7003|0|22199990|40|159968|1|1747|14:28:00|14:28:00|-|UNKNOWN|INFOPOINT|0|0
