@@ -1,4 +1,4 @@
 plugins { id "org.sonarqube" version "2.4" }
 
 group 'com.bliksemlabs.displaydirect'
-version '0.1'
+version '0.2-SNAPSHOT'
