@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package display_direct;
+option java_package = "nl.crowndov.displaydirect.common.messages";
+option java_outer_classname = "DisplayDirectMessage";
+
+// aanmelden
+message Subscribe {
+
+    message DisplayProperties {
+        uint32 text_characters = 1;
+        uint32 lines = 2;
+        uint32 max_combined_directions = 3;
+    }
+
+    message FieldFilter {
+        enum Delivery {
+            NEVER = 0;
+            ALWAYS = 1;
+            DELTA = 2;
+        }
+        Delivery target_arrival_time = 1;
+        Delivery target_departure_time = 2;
+        Delivery expected_arrival_time = 3;
+        Delivery number_of_coaches = 4;
+        Delivery trip_stop_status = 5;
+        Delivery transport_type = 6;
+        Delivery wheelchair_accessible = 7;
+        Delivery is_timing_stop = 8;
+        Delivery stop_code = 9;
+        Delivery destination = 10;
+        Delivery line_public_number = 11;
+        Delivery side_code = 12;
+        Delivery line_direction = 13;
+        Delivery journey_message_content = 14;
+        Delivery line_color = 15;
+        Delivery line_text_color = 16;
+        Delivery line_icon = 17;
+        Delivery destination_color = 18;
+        Delivery destination_text_color = 19;
+        Delivery destination_icon = 20;
+        Delivery generated_timestamp = 21;
+    }
+
+    repeated string stop_code = 1;
+    DisplayProperties display_properties = 2;
+    FieldFilter field_filter = 3;
+    string description = 4;
+    string email = 5;
+
+}
+
+message Unsubscribe {
+    bool is_permanent = 1; // Last-will is not permament
+    uint32 timestamp = 2;
+}
+
+message SubscriptionResponse {
+    enum Status {
+        REQUEST_INVALID = 0;
+        STOP_INVALID = 1;
+
+        AUTHORISATION_REQUIRED = 11;
+
+        PLANNING_SENT = 20; // Successfull
+        NO_PLANNING = 21; // Successfull, but no messages to send
+        AUTHORISATION_VALIDATED = 22;
+    }
+
+    bool success = 1;
+    Status status = 2;
+    uint32 timestamp = 3;
+}
+
+
+// reisinformatie
+message PassingTimes {
+    enum TripStopStatus {
+        PLANNED = 0;
+        DRIVING = 1;
+        SKIPPED = 2;
+        CANCELLED = 3;
+        DELETED = 4;
+        ARRIVED = 5;
+        PASSED = 6;
+        UNKNOWN = 7;
+    }
+
+    enum TransportType {
+        BUS = 0;
+        TRAM = 1;
+        METRO = 2;
+        TRAIN = 4;
+        BOAT = 5;
+    }
+
+    message Destination {
+        repeated string value = 1;
+    }
+
+    repeated uint32 pass_time_hash = 1;
+    repeated uint32 target_arrival_time = 2;
+    repeated uint32 target_departure_time = 3;
+    repeated uint32 expected_arrival_time = 4;
+    repeated uint32 expected_departure_time = 5;
+    repeated uint32 number_of_coaches = 6;
+    repeated TripStopStatus trip_stop_status = 7;
+    repeated TransportType transport_type = 8;
+    repeated bool wheelchair_accessible = 9;
+    repeated bool is_timing_stop = 10;
+    repeated string stop_code = 11;
+    repeated Destination destination = 12;
+    repeated string line_public_number = 13;
+    repeated string side_code = 14;
+    repeated uint32 line_direction = 15;
+    repeated string journey_message_content = 16;
+    repeated string line_color = 17;
+    repeated string line_text_color = 18;
+    repeated string line_icon = 19;
+    repeated string destination_color = 20;
+    repeated string destination_text_color = 21;
+    repeated string destination_icon = 22;
+    repeated uint32 generated_timestamp = 23;
+}
+
+message GeneralMessage {
+    repeated uint32 message_hash = 1;
+    repeated string message_content = 2;
+    repeated uint32 message_start_time = 3;
+    repeated uint32 message_end_time = 4;
+    repeated string generated_timestamp = 5;
+}
+
+message Container {
+    repeated PassingTimes passing_times = 1;
+    repeated GeneralMessage general_messages = 2;
+}
+
+// statistieken
+message Monitoring {
+
+    message Metric {
+        string name = 1;
+        int32 value = 2;
+        string stopsystem_id = 3;
+        uint32 timestamp = 4;
+    }
+
+    message LogMessage {
+        uint32 code = 1;
+        string message = 2;
+        string stopsystem_id = 3;
+        uint32 timestamp = 4;
+    }
+
+    repeated Metric metrics = 1;
+    repeated LogMessage logs = 2;
+}

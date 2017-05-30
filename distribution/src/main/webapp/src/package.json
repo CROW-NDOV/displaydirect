@@ -1,0 +1,14 @@
+{
+  "name": "displaydirect-distribution",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 1"
+  },
+  "author": "",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "bootstrap": "^4.0.0-alpha.6"
+  }
+}
