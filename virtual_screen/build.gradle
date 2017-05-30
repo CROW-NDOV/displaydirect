@@ -1,5 +1,5 @@
 group 'com.bliksemlabs.display_direct'
-version '0.1-SNAPSHOT'
+version '0.2-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'war'
