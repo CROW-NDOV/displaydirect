@@ -7,7 +7,7 @@ DisplayDirect is een project van CROW-NDOV om de reisinformatieketen voor Dynami
 Modules
 --------
 **Applicaties**
-- *distribution* - distributiefunctie van het DisplayDirect direct. Verwerkt KV78Turbo en zet dit op naar berichten op een MQTT broker.
+- *distribution* - distributiefunctie van het DisplayDirect project. Verwerkt KV78Turbo en zet dit om naar berichten op een MQTT broker
 - *dashboard* - een eenvoudige versie van een dashboard voor het verwerken en tonen van statusinformatie en logging
 - *virtual_screen* - een voorbeeld haltefunctie die via de browser te bedienen is
 
