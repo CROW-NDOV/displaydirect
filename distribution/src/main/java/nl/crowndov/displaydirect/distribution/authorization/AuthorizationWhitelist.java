@@ -100,7 +100,7 @@ public class AuthorizationWhitelist extends AbstractService {
             validationTokens.remove(token);
             // TODO: Might need to do this in a different thread, this will trigger 48 hours of messages
             // Get the planning we need // TODO: Duplicated
-            List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(vt.getSubscription().getSubscribedQuayCodes());
+            List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(vt.getSubscription().getSubscribedQuayCodes(), true);
             sendStatus(vt.getSystemId(), true, DisplayDirectMessage.SubscriptionResponse.Status.AUTHORISATION_VALIDATED);
             if (times.size() > 0) {
                 LOGGER.debug("Got {} times to send", times.size());

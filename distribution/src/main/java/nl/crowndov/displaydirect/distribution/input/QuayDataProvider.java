@@ -1,5 +1,6 @@
 package nl.crowndov.displaydirect.distribution.input;
 
+import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
 import nl.crowndov.displaydirect.distribution.Configuration;
 import nl.crowndov.displaydirect.distribution.domain.QuayStore;
 import nl.crowndov.displaydirect.distribution.domain.travelinfo.DeleteMessage;
@@ -8,8 +9,12 @@ import nl.crowndov.displaydirect.distribution.domain.travelinfo.RealtimeMessage;
 import nl.crowndov.displaydirect.distribution.domain.travelinfo.UpdateMessage;
 import nl.crowndov.displaydirect.distribution.kv78.PlanningLoader;
 import nl.crowndov.displaydirect.distribution.kv78.PlanningMapper;
+import nl.crowndov.displaydirect.distribution.messages.DisplayDirectMessageFactory;
+import nl.crowndov.displaydirect.distribution.messages.SubscriptionStore;
 import nl.crowndov.displaydirect.distribution.messages.processing.LineOrDestinationProcessor;
 import nl.crowndov.displaydirect.distribution.stats.MetricStore;
+import nl.crowndov.displaydirect.distribution.transport.Transport;
+import nl.crowndov.displaydirect.distribution.transport.TransportFactory;
 import nl.crowndov.displaydirect.distribution.util.AbstractService;
 import nl.crowndov.displaydirect.distribution.util.CatchableRunnable;
 import nl.crowndov.displaydirect.distribution.util.Store;
@@ -43,6 +48,8 @@ public class QuayDataProvider extends AbstractService {
     private static final Store.PlanningStore quays = new Store.PlanningStore();
 
     private static ScheduledFuture<?> backupTask;
+
+    private static Transport transport = TransportFactory.get();
 
     public static void start() {
         LOGGER.debug("Loading data");
@@ -123,15 +130,18 @@ public class QuayDataProvider extends AbstractService {
         return quays.entrySet().stream().flatMap(e -> e.getValue().getMessages().values().stream()).collect(Collectors.toList());
     }
 
-    public static List<RealtimeMessage> getDataForQuay(List<String> quayCodes) {
+    public static List<RealtimeMessage> getDataForQuay(List<String> quayCodes, boolean sendGeneralMessages) {
         Stream<RealtimeMessage> passTime = quayCodes.stream()
                 .map(QuayDataProvider::getTimesForStop)
                 .flatMap(Collection::stream)
                 .map(lineDestProcess::process) // Add lines and destinations only when we send these messages out
                 .map(PlanningMapper::setExpected); // Set expected to be target times
-        Stream<RealtimeMessage> updateMessage = quayCodes.stream()
-                .map(QuayDataProvider::getMessagesForStop)
-                .flatMap(Collection::stream);
+        Stream<RealtimeMessage> updateMessage = Stream.empty();
+        if (sendGeneralMessages) {
+            updateMessage = quayCodes.stream()
+                    .map(QuayDataProvider::getMessagesForStop)
+                    .flatMap(Collection::stream);
+        }
 
         return Stream.concat(passTime, updateMessage)
                 .collect(Collectors.toList());
@@ -165,7 +175,15 @@ public class QuayDataProvider extends AbstractService {
                 });
         LOGGER.info("Planning now contains {} records for {} stops, rejected {}", records[0], quays.size(), rejected.size());
 
-        // TODO: Actually send this to instances
+        // TODO: Move this code elsewhere
+        // TODO: This sends everything for two days, but needs to do a delta
+        SubscriptionStore.getAllSystems().values().parallelStream().forEach(sub -> {
+            List<RealtimeMessage> planning = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), false);
+            if (times.size() > 0) {
+                LOGGER.debug("Got {} times to send to {}", times.size(), sub.getId());
+                transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(planning, sub));
+            }
+        });
 
         MetricStore.getInstance().storeMetric("kv78turbo.planning.stops", quays.size());
         MetricStore.getInstance().storeMetric("kv78turbo.planning.rejected", rejected.size());
@@ -202,6 +220,6 @@ public class QuayDataProvider extends AbstractService {
             writeFileSerialize(FILE_JOURNEYS, quays.values().stream().flatMap(h -> h.getPassTimes().values().stream()).collect(Collectors.toList()));
             writeFileSerialize(FILE_MESSAGES, quays.values().stream().flatMap(h -> h.getMessages().values().stream()).collect(Collectors.toList()));
             LOGGER.debug("Finished backupTask of planning data");
-        }, 1, 5, TimeUnit.MINUTES);
+        }, 1, 15, TimeUnit.MINUTES);
     }
 }
