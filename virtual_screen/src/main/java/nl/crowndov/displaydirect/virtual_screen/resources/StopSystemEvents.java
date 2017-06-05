@@ -3,6 +3,7 @@ package nl.crowndov.displaydirect.virtual_screen.resources;
 import com.google.protobuf.InvalidProtocolBufferException;
 import nl.crowndov.displaydirect.common.messages.DisplayDirectMessage;
 import nl.crowndov.displaydirect.commonclient.mqtt.MqttClient;
+import nl.crowndov.displaydirect.commonclient.mqtt.MqttConnection;
 import nl.crowndov.displaydirect.virtual_screen.Configuration;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.OutboundEvent;
@@ -33,11 +34,16 @@ public class StopSystemEvents {
         return eventOutput;
     }
 
-    private static class OnMessageCallback implements MqttClient.onNewMessage {
+    private static class OnMessageCallback implements MqttClient.onClientAction {
         private final EventOutput eventOutput;
 
         public OnMessageCallback(EventOutput eventOutput) {
             this.eventOutput = eventOutput;
+        }
+
+        @Override
+        public void onConnect(MqttConnection connection) {
+
         }
 
         @Override

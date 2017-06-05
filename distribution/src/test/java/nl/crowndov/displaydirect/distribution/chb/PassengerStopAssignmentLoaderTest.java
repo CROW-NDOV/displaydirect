@@ -1,6 +1,5 @@
-package com.bliksemlabs.displaydirect.distribution.chb;
+package nl.crowndov.displaydirect.distribution.chb;
 
-import nl.crowndov.displaydirect.distribution.chb.PassengerStopAssignmentLoader;
 import com.netflix.config.ConfigurationManager;
 import org.junit.Assert;
 import org.junit.Before;

@@ -31,7 +31,7 @@ public class TestTransport implements Transport {
         this.onSentListener = listener;
     }
 
-    private interface OnMessageSentListener {
+    public interface OnMessageSentListener {
         void onMessageSent(String topic, byte[] data);
     }
 }

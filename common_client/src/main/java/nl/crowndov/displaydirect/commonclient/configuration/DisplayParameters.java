@@ -27,5 +27,5 @@ interface DisplayParameters {
 
     /* VRIJETEKSTTIMEOUT */ int getGeneralMessageTimeoutMinutes();
 
-    /* KEEPALIVETIME */ int getMqttTimeout();
+    /* KEEPALIVETIME */ int getMqttKeepaliveTime();
 }

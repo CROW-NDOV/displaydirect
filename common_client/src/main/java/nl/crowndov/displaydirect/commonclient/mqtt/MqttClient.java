@@ -23,7 +23,7 @@ public class MqttClient {
     private MQTT mqtt;
     private final CallbackConnection connection;
 
-    public MqttClient(String hostname, String uuid, List<String> stopCode, onNewMessage msg) {
+    public MqttClient(String hostname, String uuid, List<String> stopCode, onClientAction msg) {
         mqtt = new MQTT();
         try {
             mqtt.setHost(hostname);
@@ -39,6 +39,7 @@ public class MqttClient {
 
 
         connection = mqtt.callbackConnection();
+        MqttConnection connect = new MqttConnection(connection);
         LOGGER.info("Setting up connection");
         connection.listener(new Listener() {
             @Override
@@ -64,28 +65,7 @@ public class MqttClient {
         connection.connect(new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {
-                DisplayDirectMessage.Subscribe.Builder build = DisplayDirectMessage.Subscribe.newBuilder()
-                        .addAllStopCode(stopCode)
-                        .setDisplayProperties(DisplayDirectMessage.Subscribe.DisplayProperties.newBuilder().setTextCharacters(0))
-                        .setFieldFilter(DisplayDirectMessage.Subscribe.FieldFilter.newBuilder()
-                            .setTripStopStatus(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                            .setTargetDepartureTime(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                            .setDestination(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                            .setLinePublicNumber(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                            .setTransportType(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS))
-                        .setEmail("joelhaasnoot@gmail.com")
-                        .setDescription("Dit is een testdisplay");
-
-                byte[] msg = build.build().toByteArray();
-
-                String topic = TopicFactory.subscribe(uuid);
-                LOGGER.info("Sending subscription to {}", topic);
-                publish(topic, msg, QoS.AT_MOST_ONCE, null); // IMPORTANT QOS for Subscription
-                LOGGER.info("Connection success");
-
-                subscribe(TopicFactory.travelInformation(uuid));
-                subscribe(TopicFactory.subscriptionResponse(uuid));
-                subscribe(TopicFactory.unsubscribe(uuid));
+                msg.onConnect(connect);
             }
 
             @Override
@@ -96,15 +76,6 @@ public class MqttClient {
 
     }
 
-    private void subscribe(String subscrTopic) {
-        Topic[] topics = { new Topic (subscrTopic, QoS.AT_LEAST_ONCE) };
-        connection.subscribe(topics, new Callback<byte[]>() {
-            public void onSuccess(byte[] qoses) { LOGGER.info("Subscribe success for topic {}", subscrTopic); }
-            public void onFailure(Throwable value) {
-                LOGGER.info("Subscribe failure for topic {}", subscrTopic, value);
-            }
-        });
-    }
 
     public void stop() {
         connection.disconnect(new Callback<Void>() {
@@ -120,27 +91,10 @@ public class MqttClient {
         });
     }
 
-    public void publish(String queue, byte[] msg, QoS qos, Callback<Void> callback) {
-        if (qos == null) {
-            qos = QoS.AT_LEAST_ONCE;
-        }
-        if (callback == null) {
-            callback = new Callback<Void>() {
-                @Override
-                public void onSuccess(Void value) {
 
-                }
 
-                @Override
-                public void onFailure(Throwable value) {
-                    LOGGER.info("Error sending message");
-                }
-            };
-        }
-        connection.publish(queue, msg, qos, false, callback);
-    }
-
-    public interface onNewMessage {
+    public interface onClientAction {
+        void onConnect(MqttConnection connection);
         void onMessage(String topic, byte[] data);
     }
 }

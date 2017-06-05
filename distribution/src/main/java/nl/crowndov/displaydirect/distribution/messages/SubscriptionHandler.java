@@ -64,7 +64,7 @@ public class SubscriptionHandler {
                     LOGGER.debug("Got subscribe for {} from {}", sub.getSubscribedQuayCodes().stream().collect(Collectors.joining(", ")), sender.get());
 
                     // Get the planning we need
-                    List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes());
+                    List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), true);
                     if (times.size() > 0) {
                         LOGGER.debug("Got {} times to send", times.size());
                         transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(times, sub));

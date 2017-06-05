@@ -23,7 +23,7 @@ public class BootListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         LOGGER.info("Got boot initialized");
-        t = new DisplayDirectClient(Configuration.getHostname());
+        t = new DisplayDirectClient(Configuration.getHostname(), Configuration.getClientId());
         t.start();
     }
 

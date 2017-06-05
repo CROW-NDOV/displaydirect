@@ -20,6 +20,13 @@ public class TransportFactory {
                 }
                 instance = new MqttTransport();
             }
+        } else if (Configuration.getOutputTransport().equalsIgnoreCase("test")) {
+            if (instance == null || !(instance instanceof TestTransport)) {
+                if (instance != null) {
+                    instance.stop();
+                }
+                instance = new TestTransport();
+            }
         } else {
             throw new IllegalArgumentException("Invalid Output Transport specified");
         }

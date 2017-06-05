@@ -180,7 +180,7 @@ public class QuayDataProvider extends AbstractService {
         SubscriptionStore.getAllSystems().values().parallelStream().forEach(sub -> {
             List<RealtimeMessage> planning = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), false);
             if (times.size() > 0) {
-                LOGGER.debug("Got {} times to send to {}", times.size(), sub.getId());
+                LOGGER.debug("New planning: got {} times to send to {}", times.size(), sub.getId());
                 transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(planning, sub));
             }
         });

@@ -7,10 +7,12 @@ package nl.crowndov.displaydirect.virtual_screen;
  */
 public class Configuration {
 
-
     public static String getHostname() {
-        return "tls://direct.waarisdetram.nl:1883";
+        return "tls://acc.opendris.nl:1883";
     }
 
 
+    public static String getClientId() {
+        return "OPENGEO_029dcf0e-5a03-4677-8754-7ca8bc83f0eb";
+    }
 }

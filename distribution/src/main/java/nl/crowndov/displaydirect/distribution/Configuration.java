@@ -33,7 +33,7 @@ public class Configuration {
     }
 
     public static String getOutputTransport() {
-        return "mqtt";
+        return config.getString("distribution.transport", "mqtt");
     }
 
     public static String getMqttBrokerHost() {

@@ -1,8 +1,7 @@
-package com.bliksemlabs.displaydirect.distribution.kv78;
+package nl.crowndov.displaydirect.distribution.kv78;
 
 import nl.crowndov.displaydirect.distribution.chb.PassengerStopAssignmentLoader;
 import nl.crowndov.displaydirect.distribution.chb.StopStore;
-import nl.crowndov.displaydirect.distribution.kv78.PlanningLoader;
 import com.netflix.config.ConfigurationManager;
 import org.junit.Before;
 import org.junit.Ignore;

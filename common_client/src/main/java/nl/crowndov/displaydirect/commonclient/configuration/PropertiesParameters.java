@@ -57,7 +57,7 @@ public class PropertiesParameters implements DisplayParameters {
     }
 
     @Override
-    public int getMqttTimeout() {
+    public int getMqttKeepaliveTime() {
         return 0;
     }
 }
