@@ -51,11 +51,11 @@ server {
         listen 80;
         listen 443 ssl;
 
-        server_name acc.opendris.nl;
+        server_name dev.opendris.nl;
         root /var/www/direct;
 
-        ssl_certificate /etc/letsencrypt/live/acc.opendris.nl/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/acc.opendris.nl/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/dev.opendris.nl/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/dev.opendris.nl/privkey.pem;
 
         proxy_cache off;
 
@@ -89,11 +89,11 @@ server {
         listen 80;
         listen 443 ssl;
 
-        server_name screen.acc.opendris.nl;
+        server_name screen.dev.opendris.nl;
         root /var/www/direct;
 
-        ssl_certificate /etc/letsencrypt/live/acc.opendris.nl/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/acc.opendris.nl/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/dev.opendris.nl/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/dev.opendris.nl/privkey.pem;
 
         proxy_cache off;
 
@@ -127,11 +127,11 @@ server {
         listen 80;
         listen 443 ssl;
 
-        server_name dashboard.acc.opendris.nl;
+        server_name dashboard.dev.opendris.nl;
         root /var/www/direct;
 
-        ssl_certificate /etc/letsencrypt/live/acc.opendris.nl/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/acc.opendris.nl/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/dev.opendris.nl/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/dev.opendris.nl/privkey.pem;
 
         proxy_cache off;
 
@@ -159,3 +159,5 @@ server {
 
 }
 ``
+
+8. Configuratie kan hier worden aangepast ``/opt/displaydirect/config/configuration.properties``
