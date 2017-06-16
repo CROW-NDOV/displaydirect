@@ -15,8 +15,6 @@ dependencies {
     compile project(":common")
     compile project(":common_web")
 
-    compile 'com.netflix.archaius:archaius-core:0.6.0'
-
     compile 'org.fusesource.mqtt-client:mqtt-client:1.12'
     compile 'commons-codec:commons-codec:1.10'
 

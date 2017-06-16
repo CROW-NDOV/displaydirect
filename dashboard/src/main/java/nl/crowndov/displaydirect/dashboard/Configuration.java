@@ -13,7 +13,11 @@ public class Configuration {
     private static AbstractConfiguration config = ConfigurationManager.getConfigInstance();
 
     public static String getHostname() {
-        return config.getString("mqtt.host", "localhost:1883");
+        return config.getString("dashboard.mqtt.host", "localhost:1883");
+    }
+
+    public static String getClientId() {
+        return config.getString("dashboard.mqtt.client_id", "NDOV_dashboard-0");
     }
 
 }

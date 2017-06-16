@@ -1,5 +1,6 @@
 package nl.crowndov.displaydirect.virtual_screen;
 
+import com.netflix.config.ConfigurationManager;
 import nl.crowndov.displaydirect.commonclient.client.DisplayDirectClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import java.io.IOException;
 
 /**
  * Copyright 2017 CROW-NDOV
@@ -22,6 +24,14 @@ public class BootListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+
+        try {
+            ConfigurationManager.loadCascadedPropertiesFromResources("configuration");
+        } catch (IOException e) {
+            LOGGER.error("Failed to load properties", e);
+        }
+
+
         LOGGER.info("Got boot initialized");
         t = new DisplayDirectClient(Configuration.getHostname(), Configuration.getClientId());
         t.start();

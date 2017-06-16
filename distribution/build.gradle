@@ -15,8 +15,6 @@ dependencies {
     compile project(":common")
     compile project(":common_web")
 
-    compile 'com.netflix.archaius:archaius-core:0.6.0'
-
     /* Push frameworks */
     compile 'org.zeromq:jeromq:0.4.0'
     compile 'org.fusesource.mqtt-client:mqtt-client:1.12'

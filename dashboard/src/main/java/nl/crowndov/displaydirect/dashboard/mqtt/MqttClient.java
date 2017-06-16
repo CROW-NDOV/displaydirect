@@ -25,7 +25,6 @@ public class MqttClient {
     private MQTT mqtt;
     private final CallbackConnection connection;
 
-    private final String uuid = UUID.randomUUID().toString();
     private Callback<byte[]> subscriptionCompleteCallback = new Callback<byte[]>() {
         @Override
         public void onSuccess(byte[] value) {
@@ -42,7 +41,7 @@ public class MqttClient {
         mqtt = new MQTT();
         try {
             mqtt.setHost(Configuration.getHostname());
-            mqtt.setClientId(uuid);
+            mqtt.setClientId(Configuration.getClientId());
             mqtt.setCleanSession(false);
             mqtt.setKeepAlive((short) 90);
         } catch (URISyntaxException e) {
