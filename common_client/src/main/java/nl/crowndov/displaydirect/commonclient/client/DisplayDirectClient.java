@@ -97,7 +97,7 @@ public class DisplayDirectClient {
 
     protected DisplayDirectMessage.Subscribe createSubscriptionMessage() {
         DisplayDirectMessage.Subscribe.Builder build = DisplayDirectMessage.Subscribe.newBuilder()
-                .addAllStopCode(Collections.singletonList("NL:Q:31001388"))
+                .addAllStopCode(Collections.singletonList("NL:Q:50000360"))
                 .setDisplayProperties(DisplayDirectMessage.Subscribe.DisplayProperties.newBuilder().setTextCharacters(0))
                 .setFieldFilter(DisplayDirectMessage.Subscribe.FieldFilter.newBuilder()
                         .setTripStopStatus(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
