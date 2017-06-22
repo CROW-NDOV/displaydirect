@@ -76,6 +76,8 @@ public class Configuration {
         return config.getString("distribution.smtp.reply_to");
     }
 
+    public static boolean getSmtpSsl() { return config.getBoolean("distribution.smtp.ssl", false); }
+
     public static int getSmtpPort() {
         return config.getInt("distribution.smtp.port", 25);
     }

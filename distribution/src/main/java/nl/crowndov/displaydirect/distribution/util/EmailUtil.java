@@ -49,11 +49,13 @@ public class EmailUtil {
     private static void setupEmail(Email mail, String to, String subject, String template, Map<String, Object> body) throws EmailException {
         mail.setHostName(Configuration.getSmtpHostname());
         mail.setFrom(Configuration.getSmtpFrom(), "DisplayDirect");
-        mail.setSmtpPort(Configuration.getSmtpPort());
         if (Configuration.getSmtpUsername() != null && Configuration.getSmtpPassword() != null) {
             mail.setAuthenticator(new DefaultAuthenticator(Configuration.getSmtpUsername(), Configuration.getSmtpPassword()));
         }
-        mail.setSSLOnConnect(true);
+        if (Configuration.getSmtpSsl()) {
+            mail.setSSLOnConnect(true); // Setting this changes the port to 465
+        }
+        mail.setSmtpPort(Configuration.getSmtpPort());
 
         mail.addReplyTo(Configuration.getSmtpReplyTo(), "DisplayDirect");
         mail.setSubject(subject);
