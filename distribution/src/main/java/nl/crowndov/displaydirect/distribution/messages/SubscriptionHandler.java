@@ -33,7 +33,6 @@ public class SubscriptionHandler {
 
     public static final Transport.OnMessageReceivedListener listener = (topic, data) -> {
         try {
-            // TODO: Move domain logic elsewhere
             Optional<String> sender = TopicParser.getId(topic);
             Optional<String> command = TopicParser.getCommand(topic);
             if (!sender.isPresent() || !command.isPresent()) {
@@ -42,65 +41,9 @@ public class SubscriptionHandler {
             }
 
             if (command.get().equalsIgnoreCase("subscribe")) {
-                DisplayDirectMessage.Subscribe subscribe = DisplayDirectMessage.Subscribe.parser().parseFrom(data);
-                Subscription sub = SubscriptionParser.toSubscription(sender.get(), subscribe);
-
-                if (!sub.isValid()) {
-                    Log.send(LogCode.SUBSCRIPTION_INVALID, sender.get(), "Authorization needed for this subscription/device, no valid email");
-                    LOGGER.info("Got invalid subscription request from {}", sender.get());
-                    sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.REQUEST_INVALID);
-                    return true; // Can't do much about this;
-                }
-
-                if (!sub.hasValidStop()) {
-                    Log.send(LogCode.SUBSCRIPTION_INVALID, sender.get(), "Stop code not valid");
-                    LOGGER.info("Got invalid subscription request from {}, invalid stop {}", sender.get(),
-                            sub.getSubscribedQuayCodes().stream().collect(Collectors.joining(",")));
-                    sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.STOP_INVALID);
-                    return true; // Can't do much about this;
-                }
-
-                if (AuthorizationWhitelist.isValid(sub)) {
-                    LOGGER.debug("Got subscribe for {} from {}", sub.getSubscribedQuayCodes().stream().collect(Collectors.joining(", ")), sender.get());
-
-                    // Get the planning we need
-                    List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), true);
-                    if (times.size() > 0) {
-                        LOGGER.debug("Got {} times to send", times.size());
-                        transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(times, sub));
-                        sendStatus(sub.getId(), true, DisplayDirectMessage.SubscriptionResponse.Status.PLANNING_SENT);
-                    } else {
-                        sendStatus(sub.getId(), true, DisplayDirectMessage.SubscriptionResponse.Status.NO_PLANNING);
-                    }
-
-                    // Don't send messages till we've sent a planning
-                    SubscriptionStore.add(sub);
-                    Log.send(LogCode.SUBSCRIPTION_ADDED, sender.get(), "System subscribed succesfully, authorization already valid");
-                    return true;
-                } else {
-                    ValidationToken t = AuthorizationWhitelist.addValidation(sender.get(), sub); // TODO: Blocking network call, queue
-                    LOGGER.info("Validation required for email {}, token = {}", subscribe.getEmail(), t.getToken());
-                    sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.AUTHORISATION_REQUIRED);
-                    Log.send(LogCode.AUTHORISATION_SENT, sender.get(), "Authorization needed for this subscription/device");
-                    return true;
-                }
+                return handleSubscribe(data, sender.get());
             } else if (command.get().equalsIgnoreCase("unsubscribe")) {
-                LOGGER.debug("Got unsubscribe from {}", sender.get());
-                DisplayDirectMessage.Unsubscribe unsubscribe = DisplayDirectMessage.Unsubscribe.parser().parseFrom(data);
-                // TODO: check if it doesn't exist waiting for authentication
-                if (SubscriptionStore.isSystemSubscribed(sender.get())) {
-                    if (unsubscribe.getIsPermanent()) {
-                        SubscriptionStore.getForSystem(sender.get()).ifPresent(AuthorizationWhitelist::remove);
-                        SubscriptionStore.remove(sender.get());
-                        Log.send(LogCode.SUBSCRIPTION_REMOVED, sender.get(), "System unsubscribed permanently");
-                    } else {
-                        SubscriptionStore.remove(sender.get());
-                        Log.send(LogCode.SUBSCRIPTION_REMOVED, sender.get(), "System disconnected temporarily");
-                    }
-                } else {
-                    Log.send(LogCode.SUBSCRIPTION_INVALID_UNSUBSCRIBE, sender.get(), "System wasn't subscribed, but got unsubscribe");
-                }
-                return true;
+                return handleUnsubscribe(data, sender.get());
             }
         } catch (InvalidProtocolBufferException e) {
             LOGGER.error("Failed to parse message", e);
@@ -108,6 +51,75 @@ public class SubscriptionHandler {
         }
         return false;
     };
+
+    private static boolean handleSubscribe(byte[] data, String sender) throws InvalidProtocolBufferException {
+        DisplayDirectMessage.Subscribe subscribe = DisplayDirectMessage.Subscribe.parser().parseFrom(data);
+        Subscription sub = SubscriptionParser.toSubscription(sender, subscribe);
+
+        if (!sub.isValid()) {
+            Log.send(LogCode.SUBSCRIPTION_INVALID, sender, "Authorization needed for this subscription/device, no valid email");
+            LOGGER.info("Got invalid subscription request from {}", sender);
+            sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.REQUEST_INVALID);
+            return true; // Can't do much about this;
+        }
+
+        if (!sub.hasValidStop()) {
+            Log.send(LogCode.SUBSCRIPTION_INVALID, sender, "Stop code not valid");
+            LOGGER.info("Got invalid subscription request from {}, invalid stop {}", sender,
+                    sub.getSubscribedQuayCodes().stream().collect(Collectors.joining(",")));
+            sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.STOP_INVALID);
+            return true; // Can't do much about this;
+        }
+
+        if (AuthorizationWhitelist.isValid(sub)) {
+            LOGGER.debug("Got subscribe for {} from {}", sub.getSubscribedQuayCodes().stream().collect(Collectors.joining(", ")), sender);
+
+            // If already subscribed, remove system before sending planning and adding it.
+            if (SubscriptionStore.isSystemSubscribed(sub.getId())) {
+                SubscriptionStore.remove(sub.getId());
+            }
+
+            // Get the planning we need
+            List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), true);
+            if (times.size() > 0) {
+                LOGGER.debug("Got {} times to send", times.size());
+                transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(times, sub));
+                sendStatus(sub.getId(), true, DisplayDirectMessage.SubscriptionResponse.Status.PLANNING_SENT);
+            } else {
+                sendStatus(sub.getId(), true, DisplayDirectMessage.SubscriptionResponse.Status.NO_PLANNING);
+            }
+
+            // Don't send messages till we've sent a planning
+            SubscriptionStore.add(sub);
+            Log.send(LogCode.SUBSCRIPTION_ADDED, sender, "System subscribed succesfully, authorization already valid");
+            return true;
+        } else {
+            // TODO: Blocking network call, queue and error handling
+            ValidationToken t = AuthorizationWhitelist.addValidation(sender, sub);
+            LOGGER.info("Validation required for email {}, token = {}", subscribe.getEmail(), t.getToken());
+            sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.AUTHORISATION_REQUIRED);
+            Log.send(LogCode.AUTHORISATION_SENT, sender, "Authorization needed for this subscription/device");
+            return true;
+        }
+    }
+
+    private static boolean handleUnsubscribe(byte[] data, String sender) throws InvalidProtocolBufferException {
+        LOGGER.debug("Got unsubscribe from {}", sender);
+        DisplayDirectMessage.Unsubscribe unsubscribe = DisplayDirectMessage.Unsubscribe.parser().parseFrom(data);
+        // TODO: check if it doesn't exist waiting for authentication
+        if (SubscriptionStore.isSystemSubscribed(sender)) {
+            SubscriptionStore.remove(sender);
+            String mode = "temporarily";
+            if (unsubscribe.getIsPermanent()) {
+                SubscriptionStore.getForSystem(sender).ifPresent(AuthorizationWhitelist::remove);
+                mode = "permanently";
+            }
+            Log.send(LogCode.SUBSCRIPTION_REMOVED, sender, "System unsubscribed "+mode);
+        } else {
+            Log.send(LogCode.SUBSCRIPTION_INVALID_UNSUBSCRIBE, sender, "System wasn't subscribed, but got unsubscribe");
+        }
+        return true;
+    }
 
     private static boolean sendStatus(String id, boolean success, DisplayDirectMessage.SubscriptionResponse.Status s) {
         return transport.sendMessage(TopicFactory.subscriptionResponse(id),  DisplayDirectMessageFactory.toSubscriptionStatus(success, s));
