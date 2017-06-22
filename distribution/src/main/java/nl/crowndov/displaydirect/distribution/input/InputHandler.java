@@ -43,7 +43,12 @@ public class InputHandler {
                 if (value.size() > 0) {
                     LOGGER.trace("Publishing to {}", sub.getId());
                     metrics.increaseBucketValue("kv78turbo.messages.sent", ChronoUnit.HOURS);
-                    transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(value, sub));
+                    byte[] msg = DisplayDirectMessageFactory.fromRealTime(value, sub);
+                    if (msg != null) {
+                        transport.sendMessage(TopicFactory.travelInformation(sub.getId()), msg);
+                    } else {
+                        LOGGER.debug("Got zero result for msg {}, translated to {} and sub {}", m, value, sub.getId());
+                    }
                 }
             });
         });

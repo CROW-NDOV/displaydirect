@@ -79,17 +79,25 @@ public class PassTime {
     public boolean isCurrent() {
         return status != DisplayDirectMessage.PassingTimes.TripStopStatus.PASSED && status != DisplayDirectMessage.PassingTimes.TripStopStatus.DELETED
                 && status != DisplayDirectMessage.PassingTimes.TripStopStatus.CANCELLED  && status != DisplayDirectMessage.PassingTimes.TripStopStatus.SKIPPED &&
-                !isDisplayedTooLongActual() && !isDisplayedTooLongPlanned();
+                isWithinDisplayPeriod() && !isDisplayedTooLongActual() && !isDisplayedTooLongPlanned();
+    }
+
+    private boolean isWithinDisplayPeriod() {
+        return Math.abs(secondsToExpectedDeparture()/60) < DisplayConfiguration.getDisplayParameters().getJourneyMinimumDepartureMinutes();
     }
 
     private boolean isDisplayedTooLongPlanned() {
         return (status == DisplayDirectMessage.PassingTimes.TripStopStatus.PLANNED || status == DisplayDirectMessage.PassingTimes.TripStopStatus.UNKNOWN)
-                && (ZonedDateTime.now(DisplayConfiguration.getTimezone()).toEpochSecond() - expectedDepartureTime) > DisplayConfiguration.getUnplannedJourneyTimeoutSeconds();
+                && secondsToExpectedDeparture() > DisplayConfiguration.getDisplayParameters().getUnplannedJourneyTimeoutSeconds();
     }
 
     private boolean isDisplayedTooLongActual() {
         return ((status == DisplayDirectMessage.PassingTimes.TripStopStatus.DRIVING || status == DisplayDirectMessage.PassingTimes.TripStopStatus.ARRIVED) &&
-                (ZonedDateTime.now(DisplayConfiguration.getTimezone()).toEpochSecond() - expectedDepartureTime) > DisplayConfiguration.getJourneyTimeoutSeconds());
+                secondsToExpectedDeparture() > DisplayConfiguration.getDisplayParameters().getJourneyTimeoutSeconds());
+    }
+
+    private long secondsToExpectedDeparture() {
+        return ZonedDateTime.now(DisplayConfiguration.getTimezone()).toEpochSecond() - expectedDepartureTime;
     }
 
     @Override

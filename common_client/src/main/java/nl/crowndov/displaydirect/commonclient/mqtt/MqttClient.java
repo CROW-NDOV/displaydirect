@@ -1,15 +1,17 @@
 package nl.crowndov.displaydirect.commonclient.mqtt;
 
-import nl.crowndov.displaydirect.common.messages.DisplayDirectMessage;
 import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
+import nl.crowndov.displaydirect.commonclient.domain.SubscriptionBuilder;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.UTF8Buffer;
-import org.fusesource.mqtt.client.*;
+import org.fusesource.mqtt.client.Callback;
+import org.fusesource.mqtt.client.CallbackConnection;
+import org.fusesource.mqtt.client.Listener;
+import org.fusesource.mqtt.client.MQTT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * Copyright 2017 CROW-NDOV
@@ -23,7 +25,7 @@ public class MqttClient {
     private MQTT mqtt;
     private final CallbackConnection connection;
 
-    public MqttClient(String hostname, String uuid, List<String> stopCode, onClientAction msg) {
+    public MqttClient(String hostname, String uuid, onClientAction msg) {
         mqtt = new MQTT();
         try {
             mqtt.setHost(hostname);
@@ -33,8 +35,7 @@ public class MqttClient {
         mqtt.setClientId(uuid);
         mqtt.setCleanSession(true);
         mqtt.setKeepAlive((short) 90);
-        byte[] lastWill = DisplayDirectMessage.Unsubscribe.newBuilder().setIsPermanent(false).build().toByteArray();
-        mqtt.setWillMessage(new UTF8Buffer(lastWill));
+        mqtt.setWillMessage(new UTF8Buffer(SubscriptionBuilder.unsubscribe().toByteArray()));
         mqtt.setWillTopic(TopicFactory.unsubscribe(uuid));
 
 

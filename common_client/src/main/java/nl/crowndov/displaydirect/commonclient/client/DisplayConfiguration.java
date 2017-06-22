@@ -1,8 +1,9 @@
 package nl.crowndov.displaydirect.commonclient.client;
 
+import nl.crowndov.displaydirect.commonclient.configuration.DisplayParameters;
+import nl.crowndov.displaydirect.commonclient.configuration.SystemParameters;
+
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Copyright 2017 CROW-NDOV
@@ -11,45 +12,23 @@ import java.util.List;
  */
 public class DisplayConfiguration {
 
-    public static long getMaxLines() {
-        return 11;
+    private static DisplayParameters display;
+    private static SystemParameters system;
+
+    public static DisplayParameters getDisplayParameters() {
+        return display;
     }
 
-    /* ALTERBEST */
-    public static long getDestinationAlternatingSeconds() { return 5; }
+    public static SystemParameters getSystemParameters() {
+        return system;
+    }
 
-    /* TOONTIJD */
-    public static long getJourneyMinimumDepartureMinutes() { return 59; }
+    public static synchronized void setDisplay(DisplayParameters display) {
+        DisplayConfiguration.display = display;
+    }
 
-    /* TOONMAX */
-    public static long getMaxCombinedDirections() { return 2; }
-
-    /* SNELWIS */
-    public static boolean hideJourneyOnArrival() { return true; }
-
-    /* VERTREKTIMEOUT */
-    public static long getDepartureTimeoutSeconds() { return 120; }
-
-    /* RITRESET */
-    public static long getJourneyTimeoutSeconds() { return 30; }
-
-    /* INDICATORVANAF */
-    public static long getUnplannedJourneyTimeoutSeconds() { return 0; }
-
-    /* VERVALTWEERGAVE */
-    public static boolean showCancelledTrip() { return false; }
-
-    /* WITREGEL  */
-    public static boolean showBlankLine() { return true; }
-
-    /* VRIJETEKSTTIMEOUT */
-    public static int getGeneralMessageTimeoutMinutes() { return 722; }
-
-    /* KEEPALIVETIME */
-    public static int getMqttTimeout() { return 90; }
-
-    public static List<String> getStopCodes() {
-        return Collections.singletonList("NL:Q:50000360");
+    public static synchronized void setSystem(SystemParameters system) {
+        DisplayConfiguration.system = system;
     }
 
     public static ZoneId getTimezone() {

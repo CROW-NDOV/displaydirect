@@ -1,7 +1,6 @@
 package nl.crowndov.displaydirect.commonclient.store;
 
 import nl.crowndov.displaydirect.common.messages.DisplayDirectMessage;
-import nl.crowndov.displaydirect.commonclient.client.DisplayConfiguration;
 import nl.crowndov.displaydirect.commonclient.domain.PassTime;
 
 import java.util.*;
@@ -32,7 +31,7 @@ public class DataStore {
         return departures.values().stream()
                 .filter(PassTime::isCurrent)
                 .sorted(Comparator.comparingInt(PassTime::getExpectedDepartureTime))
-                .limit(DisplayConfiguration.getMaxLines())
+                .limit(11)
                 .collect(Collectors.toList());
     }
 

@@ -2,9 +2,9 @@ package nl.crowndov.displaydirect.virtual_screen.resources;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import nl.crowndov.displaydirect.common.messages.DisplayDirectMessage;
+import nl.crowndov.displaydirect.commonclient.client.DisplayConfiguration;
 import nl.crowndov.displaydirect.commonclient.mqtt.MqttClient;
 import nl.crowndov.displaydirect.commonclient.mqtt.MqttConnection;
-import nl.crowndov.displaydirect.virtual_screen.Configuration;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.OutboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
@@ -16,7 +16,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,7 +29,7 @@ public class StopSystemEvents {
     @Path("/{stopCode}")
     public EventOutput getServerSentEvents(@PathParam("stopCode") final String stopCode) {
         final EventOutput eventOutput = new EventOutput();
-        new Thread(() -> new MqttClient(Configuration.getHostname(), UUID.randomUUID().toString(), Collections.singletonList(stopCode), new OnMessageCallback(eventOutput))).start();
+        new Thread(() -> new MqttClient(DisplayConfiguration.getSystemParameters().getConnectionString(), UUID.randomUUID().toString(), new OnMessageCallback(eventOutput))).start();
         return eventOutput;
     }
 

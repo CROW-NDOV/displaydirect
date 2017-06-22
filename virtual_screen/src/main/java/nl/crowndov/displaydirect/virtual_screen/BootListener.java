@@ -31,9 +31,8 @@ public class BootListener implements ServletContextListener {
             LOGGER.error("Failed to load properties", e);
         }
 
-
         LOGGER.info("Got boot initialized");
-        t = new DisplayDirectClient(Configuration.getHostname(), Configuration.getClientId());
+        t = new DisplayDirectClient(new Configuration());
         t.start();
     }
 

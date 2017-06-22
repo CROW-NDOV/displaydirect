@@ -4,7 +4,11 @@ package nl.crowndov.displaydirect.commonclient.client;
 import com.google.protobuf.InvalidProtocolBufferException;
 import nl.crowndov.displaydirect.common.messages.DisplayDirectMessage;
 import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
+import nl.crowndov.displaydirect.commonclient.configuration.AbstractConfiguration;
+import nl.crowndov.displaydirect.commonclient.configuration.DisplayParameters;
+import nl.crowndov.displaydirect.commonclient.configuration.SystemParameters;
 import nl.crowndov.displaydirect.commonclient.domain.PassTime;
+import nl.crowndov.displaydirect.commonclient.domain.SubscriptionBuilder;
 import nl.crowndov.displaydirect.commonclient.mqtt.MqttClient;
 import nl.crowndov.displaydirect.commonclient.mqtt.MqttConnection;
 import nl.crowndov.displaydirect.commonclient.store.DataStore;
@@ -12,12 +16,8 @@ import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Copyright 2017 CROW-NDOV
@@ -30,23 +30,27 @@ public class DisplayDirectClient {
     public static final String TOPIC_TRAVEL_INFORMATION = "travel_information";
     public static final String TOPIC_SUBSCRIPTION_RESPONSE = "subscription_response";
 
+    private DisplayParameters display;
+    private SystemParameters system;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    //private final DisplayParameters params;
-    private String clientId = null;
-    private String hostname = "";
+    private final ScheduledExecutorService schedule = Executors.newScheduledThreadPool(1);
+
     private Future<?> receiver;
+    private ScheduledFuture<?> connect;
     private MqttClient client;
 
     private OnDisplayDirectListener listener;
 
-    public DisplayDirectClient(String hostname) {
-        this.hostname = hostname;
-        this.clientId = "test_"+UUID.randomUUID().toString();
+    public DisplayDirectClient(SystemParameters system, DisplayParameters display) {
+        this.system = system;
+        this.display = display;
+        DisplayConfiguration.setDisplay(display);
+        DisplayConfiguration.setSystem(system);
     }
 
-    public DisplayDirectClient(String hostname, String clientId) {
-        this.hostname = hostname;
-        this.clientId = clientId;
+    public DisplayDirectClient(AbstractConfiguration config) {
+        this(config, config);
     }
 
 
@@ -60,14 +64,11 @@ public class DisplayDirectClient {
 
         @Override
         public void onConnect(MqttConnection connection) {
-            String topic = TopicFactory.subscribe(clientId);
-            LOGGER.info("Sending subscription to {}", topic);
-            connection.publish(topic, createSubscriptionMessage().toByteArray(), QoS.AT_MOST_ONCE, null);
-            LOGGER.info("Connection success");
+            connect = schedule.scheduleAtFixedRate(new ConnectRunnable(connection, display, system), 0, system.getSubscriptionRetryMinutes(), TimeUnit.MINUTES);
 
-            connection.subscribe(TopicFactory.travelInformation(clientId));
-            connection.subscribe(TopicFactory.subscriptionResponse(clientId));
-            connection.subscribe(TopicFactory.unsubscribe(clientId));
+            connection.subscribe(TopicFactory.travelInformation(system.getSessionId()));
+            connection.subscribe(TopicFactory.subscriptionResponse(system.getSessionId()));
+            connection.subscribe(TopicFactory.unsubscribe(system.getSessionId()));
         }
 
         @Override
@@ -88,6 +89,9 @@ public class DisplayDirectClient {
                     if (listener != null) {
                         listener.onSubscriptionResponse(response);
                     }
+                    if (response.getSuccess()) {
+                        connect.cancel(true);
+                    }
                 }
             } catch (InvalidProtocolBufferException e) {
                 LOGGER.error("Failed to parse message", e);
@@ -95,34 +99,36 @@ public class DisplayDirectClient {
         }
     };
 
-    protected DisplayDirectMessage.Subscribe createSubscriptionMessage() {
-        DisplayDirectMessage.Subscribe.Builder build = DisplayDirectMessage.Subscribe.newBuilder()
-                .addAllStopCode(Collections.singletonList("NL:Q:50000360"))
-                .setDisplayProperties(DisplayDirectMessage.Subscribe.DisplayProperties.newBuilder().setTextCharacters(0))
-                .setFieldFilter(DisplayDirectMessage.Subscribe.FieldFilter.newBuilder()
-                        .setTripStopStatus(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                        .setTargetDepartureTime(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                        .setDestination(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                        .setLinePublicNumber(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS)
-                        .setTransportType(DisplayDirectMessage.Subscribe.FieldFilter.Delivery.ALWAYS))
-                .setEmail("joelhaasnoot@gmail.com")
-                .setDescription("Dit is een testdisplay");
-
-        return build.build();
-    }
-
-    private final Runnable receiveMessage = () -> {
-         client = new MqttClient(hostname, clientId, DisplayConfiguration.getStopCodes(), clientListener);
-    };
-
     public void start() {
-        receiver = executor.submit(receiveMessage);
+        receiver = executor.submit( () -> client = new MqttClient(system.getConnectionString(), system.getSessionId(),
+                clientListener));
     }
 
     public void stop() {
         client.stop();
         receiver.cancel(true);
         executor.shutdown();
+        schedule.shutdown();
+    }
+
+    private static class ConnectRunnable implements Runnable {
+
+        private final MqttConnection connection;
+        private final DisplayParameters display;
+        private final SystemParameters system;
+
+        public ConnectRunnable(MqttConnection connection, DisplayParameters display, SystemParameters system) {
+            this.connection = connection;
+            this.display = display;
+            this.system = system;
+        }
+
+        @Override
+        public void run() {
+            String topic = TopicFactory.subscribe(system.getSessionId());
+            LOGGER.info("Sending subscription to {}", topic);
+            connection.publish(topic, SubscriptionBuilder.subscribe(display, system).toByteArray(), QoS.AT_MOST_ONCE, null);
+        }
     }
 
 

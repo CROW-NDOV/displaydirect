@@ -5,7 +5,7 @@ package nl.crowndov.displaydirect.commonclient.configuration;
  *
  * This file is subject to the terms and conditions defined in file 'LICENSE.txt', which is part of this source code package.
  */
-interface DisplayParameters {
+public interface DisplayParameters {
 
     /* ALTERBEST */ long getDestinationAlternatingSeconds();
 
