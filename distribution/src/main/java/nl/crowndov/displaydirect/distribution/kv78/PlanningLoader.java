@@ -48,8 +48,11 @@ public class PlanningLoader {
         LOGGER.info("Starting to load planning files");
         handleFiles(Paths.get(Configuration.getKv7PlanningPath()), this::getPlanning);
         QuayDataProvider.replace(planningRecords);
+
         LineProvider.backup();
+        DestinationProvider.backup();
         TimingPointProvider.backup();
+
         Log.send(LogCode.PLANNING_LOADED, String.format("Loaded %s records for %s and %s", planningRecords.size(), interestingDates.get(0).toString(),
                 interestingDates.get(1).toString()));
     }

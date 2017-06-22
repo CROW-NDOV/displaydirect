@@ -21,6 +21,10 @@ public class DestinationProvider extends AbstractService {
     }
 
     public static void stop() {
+       backup();
+    }
+
+    public static void backup() {
         writeFile("destinations", destinations);
     }
 
