@@ -4,10 +4,7 @@ import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
 import nl.crowndov.displaydirect.commonclient.domain.SubscriptionBuilder;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.UTF8Buffer;
-import org.fusesource.mqtt.client.Callback;
-import org.fusesource.mqtt.client.CallbackConnection;
-import org.fusesource.mqtt.client.Listener;
-import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +21,8 @@ public class MqttClient {
 
     private MQTT mqtt;
     private final CallbackConnection connection;
+    private final byte[] disconnect = SubscriptionBuilder.unsubscribe().toByteArray();
+    private final String disconnectTopic;
 
     public MqttClient(String hostname, String uuid, onClientAction msg) {
         mqtt = new MQTT();
@@ -35,8 +34,9 @@ public class MqttClient {
         mqtt.setClientId(uuid);
         mqtt.setCleanSession(true);
         mqtt.setKeepAlive((short) 90);
-        mqtt.setWillMessage(new UTF8Buffer(SubscriptionBuilder.unsubscribe().toByteArray()));
-        mqtt.setWillTopic(TopicFactory.unsubscribe(uuid));
+        mqtt.setWillMessage(new UTF8Buffer(disconnect));
+        disconnectTopic = TopicFactory.unsubscribe(uuid);
+        mqtt.setWillTopic(disconnectTopic);
 
 
         connection = mqtt.callbackConnection();
@@ -79,6 +79,7 @@ public class MqttClient {
 
 
     public void stop() {
+        connection.publish(disconnectTopic, disconnect, QoS.AT_LEAST_ONCE, false, null);
         connection.disconnect(new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {
@@ -91,8 +92,6 @@ public class MqttClient {
             }
         });
     }
-
-
 
     public interface onClientAction {
         void onConnect(MqttConnection connection);
