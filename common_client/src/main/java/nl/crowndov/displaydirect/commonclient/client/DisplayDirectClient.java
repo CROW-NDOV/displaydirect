@@ -90,6 +90,7 @@ public class DisplayDirectClient {
                         listener.onSubscriptionResponse(response);
                     }
                     if (response.getSuccess()) {
+                        LOGGER.info("Connected succesfully, not retrying any more");
                         connect.cancel(true);
                     }
                 }
