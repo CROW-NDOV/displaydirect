@@ -2,6 +2,7 @@ package nl.crowndov.displaydirect.distribution.transport.mqtt;
 
 import nl.crowndov.displaydirect.distribution.input.Kv78ProcessTask;
 import nl.crowndov.displaydirect.distribution.transport.Transport;
+import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,12 @@ public class MqttTransport implements Transport {
 
     @Override
     public boolean sendMessage(String topic, byte[] data) {
-        return data != null && c.send(topic, data);
+        return sendMessage(topic, data, QoS.AT_LEAST_ONCE);
+    }
+
+    @Override
+    public boolean sendMessage(String topic, byte[] data, QoS quality) {
+        return data != null && c.send(topic, data, quality);
     }
 
     @Override

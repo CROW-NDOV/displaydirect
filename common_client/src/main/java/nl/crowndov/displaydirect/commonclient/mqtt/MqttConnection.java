@@ -35,7 +35,7 @@ public class MqttConnection {
 
                 @Override
                 public void onFailure(Throwable value) {
-                    LOGGER.info("Error sending message");
+                    LOGGER.info("Error sending message:", value);
                 }
             };
         }

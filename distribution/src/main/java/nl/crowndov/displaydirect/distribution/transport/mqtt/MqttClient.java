@@ -65,8 +65,8 @@ public class MqttClient {
             @Override
             public void onSuccess(Void value) {
                 LOGGER.info("Connection success");
-                subscribe(TopicFactory.subscribe(null));
-                subscribe(TopicFactory.unsubscribe(null));
+                subscribe(TopicFactory.subscribe(null), QoS.AT_MOST_ONCE);
+                subscribe(TopicFactory.unsubscribe(null), QoS.AT_MOST_ONCE);
             }
 
             @Override
@@ -77,7 +77,11 @@ public class MqttClient {
     }
 
     private void subscribe(String topic) {
-        connection.subscribe(new Topic[]{new Topic(topic, QoS.AT_MOST_ONCE)}, new Callback<byte[]>() {
+        subscribe(topic, QoS.AT_MOST_ONCE);
+    }
+
+    private void subscribe(String topic, QoS value) {
+        connection.subscribe(new Topic[]{new Topic(topic, value)}, new Callback<byte[]>() {
             @Override
             public void onSuccess(byte[] value) {
                 LOGGER.info("Subscribed to subscription queue {}", topic);
@@ -90,11 +94,11 @@ public class MqttClient {
         });
     }
 
-    public boolean send(String queue, byte[] msg) {
+    public boolean send(String queue, byte[] msg, QoS quality) {
         if (!connected) {
             return false;
         }
-        connection.publish(queue, msg, QoS.AT_MOST_ONCE, false, new Callback<Void>() {
+        connection.publish(queue, msg, quality, false, new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {
                 LOGGER.trace("Succesfully sent message");

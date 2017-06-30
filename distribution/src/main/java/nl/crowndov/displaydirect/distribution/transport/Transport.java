@@ -1,5 +1,7 @@
 package nl.crowndov.displaydirect.distribution.transport;
 
+import org.fusesource.mqtt.client.QoS;
+
 /**
  * Copyright 2017 CROW-NDOV
  *
@@ -8,6 +10,8 @@ package nl.crowndov.displaydirect.distribution.transport;
 public interface Transport {
 
     boolean sendMessage(String topic, byte[] data);
+
+    boolean sendMessage(String topic, byte[] data, QoS quality);
 
     void registerListener(OnMessageReceivedListener listener);
 
