@@ -6,6 +6,7 @@ import nl.crowndov.displaydirect.distribution.util.CatchableRunnable;
 import nl.crowndov.displaydirect.common.stats.domain.Metric;
 import nl.crowndov.displaydirect.distribution.transport.Transport;
 import nl.crowndov.displaydirect.distribution.transport.TransportFactory;
+import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class MetricPusher  {
                 .map(Optional::get)
                 .collect(Collectors.toList());
         if (m.size() > 0) { // No point sending empty messages
-            transport.sendMessage(TopicFactory.monitoring(), DisplayDirectMessageFactory.toMonitoringMetrics(m));
+            transport.sendMessage(TopicFactory.monitoring(), DisplayDirectMessageFactory.toMonitoringMetrics(m), QoS.AT_LEAST_ONCE);
         }
     }
 

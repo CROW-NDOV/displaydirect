@@ -16,6 +16,7 @@ import nl.crowndov.displaydirect.distribution.util.AbstractService;
 import nl.crowndov.displaydirect.distribution.util.EmailUtil;
 import nl.crowndov.displaydirect.distribution.messages.SubscriptionStore;
 import nl.crowndov.displaydirect.distribution.util.Store;
+import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +105,7 @@ public class AuthorizationWhitelist extends AbstractService {
             sendStatus(vt.getSystemId(), true, DisplayDirectMessage.SubscriptionResponse.Status.AUTHORISATION_VALIDATED);
             if (times.size() > 0) {
                 LOGGER.debug("Got {} times to send", times.size());
-                transport.sendMessage(TopicFactory.travelInformation(vt.getSystemId()), DisplayDirectMessageFactory.fromRealTime(times, vt.getSubscription()));
+                transport.sendMessage(TopicFactory.travelInformation(vt.getSystemId()), DisplayDirectMessageFactory.fromRealTime(times, vt.getSubscription()), QoS.AT_LEAST_ONCE);
                 sendStatus(vt.getSystemId(), true, DisplayDirectMessage.SubscriptionResponse.Status.PLANNING_SENT);
             } else {
                 sendStatus(vt.getSystemId(), true, DisplayDirectMessage.SubscriptionResponse.Status.NO_PLANNING);
@@ -131,7 +132,8 @@ public class AuthorizationWhitelist extends AbstractService {
         return validKeys;
     }
 
+    // TODO: Duplicate method
     private static boolean sendStatus(String id, boolean success, DisplayDirectMessage.SubscriptionResponse.Status s) {
-        return transport.sendMessage(TopicFactory.subscriptionResponse(id),  DisplayDirectMessageFactory.toSubscriptionStatus(success, s));
+        return transport.sendMessage(TopicFactory.subscriptionResponse(id),  DisplayDirectMessageFactory.toSubscriptionStatus(success, s), QoS.EXACTLY_ONCE);
     }
 }

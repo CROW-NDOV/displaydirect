@@ -6,6 +6,7 @@ import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
 import nl.crowndov.displaydirect.distribution.messages.DisplayDirectMessageFactory;
 import nl.crowndov.displaydirect.distribution.transport.Transport;
 import nl.crowndov.displaydirect.distribution.transport.TransportFactory;
+import org.fusesource.mqtt.client.QoS;
 
 /**
  * Copyright 2017 CROW-NDOV
@@ -27,9 +28,9 @@ public class Log {
 
     public static void send(LogMessage lm) {
         if (lm.getStopSystemId() == null) {
-            transport.sendMessage(topic, DisplayDirectMessageFactory.toMonitoringLog(lm));
+            transport.sendMessage(topic, DisplayDirectMessageFactory.toMonitoringLog(lm), QoS.AT_LEAST_ONCE);
         } else {
-            transport.sendMessage(TopicFactory.monitoring(lm.getStopSystemId()), DisplayDirectMessageFactory.toMonitoringLog(lm));
+            transport.sendMessage(TopicFactory.monitoring(lm.getStopSystemId()), DisplayDirectMessageFactory.toMonitoringLog(lm), QoS.EXACTLY_ONCE);
         }
     }
 }

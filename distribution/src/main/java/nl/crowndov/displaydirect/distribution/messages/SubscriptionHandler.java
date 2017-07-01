@@ -13,6 +13,7 @@ import nl.crowndov.displaydirect.distribution.input.QuayDataProvider;
 import nl.crowndov.displaydirect.distribution.stats.logging.Log;
 import nl.crowndov.displaydirect.distribution.transport.Transport;
 import nl.crowndov.displaydirect.distribution.transport.TransportFactory;
+import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public class SubscriptionHandler {
             List<RealtimeMessage> times = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), true);
             if (times.size() > 0) {
                 LOGGER.debug("Got {} times to send", times.size());
-                transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(times, sub));
+                transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(times, sub), QoS.AT_LEAST_ONCE);
                 sendStatus(sub.getId(), true, DisplayDirectMessage.SubscriptionResponse.Status.PLANNING_SENT);
             } else {
                 sendStatus(sub.getId(), true, DisplayDirectMessage.SubscriptionResponse.Status.NO_PLANNING);
@@ -122,6 +123,6 @@ public class SubscriptionHandler {
     }
 
     private static boolean sendStatus(String id, boolean success, DisplayDirectMessage.SubscriptionResponse.Status s) {
-        return transport.sendMessage(TopicFactory.subscriptionResponse(id),  DisplayDirectMessageFactory.toSubscriptionStatus(success, s));
+        return transport.sendMessage(TopicFactory.subscriptionResponse(id),  DisplayDirectMessageFactory.toSubscriptionStatus(success, s), QoS.EXACTLY_ONCE);
     }
 }

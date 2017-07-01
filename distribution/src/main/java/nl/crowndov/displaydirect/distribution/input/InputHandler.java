@@ -10,6 +10,7 @@ import nl.crowndov.displaydirect.distribution.messages.processing.ProcessFactory
 import nl.crowndov.displaydirect.distribution.stats.MetricStore;
 import nl.crowndov.displaydirect.distribution.transport.Transport;
 import nl.crowndov.displaydirect.distribution.transport.TransportFactory;
+import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class InputHandler {
                     metrics.increaseBucketValue("kv78turbo.messages.sent", ChronoUnit.HOURS);
                     byte[] msg = DisplayDirectMessageFactory.fromRealTime(value, sub);
                     if (msg != null) {
-                        transport.sendMessage(TopicFactory.travelInformation(sub.getId()), msg);
+                        transport.sendMessage(TopicFactory.travelInformation(sub.getId()), msg, QoS.AT_LEAST_ONCE);
                     } else {
                         LOGGER.debug("Got zero result for msg {}, translated to {} and sub {}", m, value, sub.getId());
                     }

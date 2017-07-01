@@ -18,6 +18,7 @@ import nl.crowndov.displaydirect.distribution.transport.TransportFactory;
 import nl.crowndov.displaydirect.distribution.util.AbstractService;
 import nl.crowndov.displaydirect.distribution.util.CatchableRunnable;
 import nl.crowndov.displaydirect.distribution.util.Store;
+import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,7 +182,7 @@ public class QuayDataProvider extends AbstractService {
             List<RealtimeMessage> planning = QuayDataProvider.getDataForQuay(sub.getSubscribedQuayCodes(), false);
             if (times.size() > 0) {
                 LOGGER.debug("New planning: got {} times to send to {}", times.size(), sub.getId());
-                transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(planning, sub));
+                transport.sendMessage(TopicFactory.travelInformation(sub.getId()), DisplayDirectMessageFactory.fromRealTime(planning, sub), QoS.AT_LEAST_ONCE);
             }
         });
 
