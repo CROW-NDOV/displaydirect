@@ -43,7 +43,7 @@ public class MqttConnection {
     }
 
 
-    public void subscribe(String subscrTopic) {
+    public void subscribe(String subscrTopic, QoS quality) {
         Topic[] topics = { new Topic (subscrTopic, QoS.AT_LEAST_ONCE) };
         connection.subscribe(topics, new Callback<byte[]>() {
             public void onSuccess(byte[] qoses) { LOGGER.info("Subscribe success for topic {}", subscrTopic); }

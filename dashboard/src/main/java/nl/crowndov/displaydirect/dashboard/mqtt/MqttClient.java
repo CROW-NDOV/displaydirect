@@ -1,9 +1,9 @@
 package nl.crowndov.displaydirect.dashboard.mqtt;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import nl.crowndov.displaydirect.dashboard.Configuration;
-import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
 import nl.crowndov.displaydirect.common.messages.DisplayDirectMessage;
+import nl.crowndov.displaydirect.common.transport.mqtt.TopicFactory;
+import nl.crowndov.displaydirect.dashboard.Configuration;
 import org.fusesource.hawtbuf.Buffer;
 import org.fusesource.hawtbuf.UTF8Buffer;
 import org.fusesource.mqtt.client.*;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 /**
  * Copyright 2017 CROW-NDOV
@@ -80,10 +79,10 @@ public class MqttClient {
             @Override
             public void onSuccess(Void value) {
                 LOGGER.info("Subscribing to topics");
-                Topic[] topics = { new Topic (TopicFactory.monitoring(), QoS.AT_MOST_ONCE) };
+                Topic[] topics = { new Topic (TopicFactory.monitoring(), QoS.AT_LEAST_ONCE) };
                 connection.subscribe(topics, subscriptionCompleteCallback);
                 // TODO: Figure this out
-                Topic[] topics2 = { new Topic (TopicFactory.monitoring("+"), QoS.AT_MOST_ONCE) };
+                Topic[] topics2 = { new Topic (TopicFactory.monitoring("+"), QoS.AT_LEAST_ONCE) };
                 connection.subscribe(topics2, subscriptionCompleteCallback);
             }
 

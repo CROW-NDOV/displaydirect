@@ -37,7 +37,7 @@ public class MqttClient {
         mqtt.setWillMessage(new UTF8Buffer(disconnect));
         disconnectTopic = TopicFactory.unsubscribe(uuid);
         mqtt.setWillTopic(disconnectTopic);
-
+        mqtt.setWillQos(QoS.EXACTLY_ONCE);
 
         connection = mqtt.callbackConnection();
         MqttConnection connect = new MqttConnection(connection);
@@ -79,7 +79,7 @@ public class MqttClient {
 
 
     public void stop() {
-        connection.publish(disconnectTopic, disconnect, QoS.AT_LEAST_ONCE, false, null);
+        connection.publish(disconnectTopic, disconnect, QoS.EXACTLY_ONCE, false, null);
         connection.disconnect(new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {

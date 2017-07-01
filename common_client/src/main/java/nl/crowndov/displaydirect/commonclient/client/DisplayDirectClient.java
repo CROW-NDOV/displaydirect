@@ -66,9 +66,9 @@ public class DisplayDirectClient {
         public void onConnect(MqttConnection connection) {
             connect = schedule.scheduleAtFixedRate(new ConnectRunnable(connection, display, system), 0, system.getSubscriptionRetryMinutes(), TimeUnit.MINUTES);
 
-            connection.subscribe(TopicFactory.travelInformation(system.getSessionId()));
-            connection.subscribe(TopicFactory.subscriptionResponse(system.getSessionId()));
-            connection.subscribe(TopicFactory.unsubscribe(system.getSessionId()));
+            connection.subscribe(TopicFactory.travelInformation(system.getSessionId()), QoS.AT_LEAST_ONCE);
+            connection.subscribe(TopicFactory.subscriptionResponse(system.getSessionId()), QoS.EXACTLY_ONCE);
+            connection.subscribe(TopicFactory.unsubscribe(system.getSessionId()), QoS.EXACTLY_ONCE);
         }
 
         @Override
@@ -128,7 +128,7 @@ public class DisplayDirectClient {
         public void run() {
             String topic = TopicFactory.subscribe(system.getSessionId());
             LOGGER.info("Sending subscription to {}", topic);
-            connection.publish(topic, SubscriptionBuilder.subscribe(display, system).toByteArray(), QoS.AT_MOST_ONCE, null);
+            connection.publish(topic, SubscriptionBuilder.subscribe(display, system).toByteArray(), QoS.EXACTLY_ONCE, null);
         }
     }
 
