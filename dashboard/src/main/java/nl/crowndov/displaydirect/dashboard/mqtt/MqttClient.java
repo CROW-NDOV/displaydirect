@@ -68,6 +68,7 @@ public class MqttClient {
                     LOGGER.error("Failed to parse message", e);
                     msg.onFailure(e);
                 }
+                ack.run();
             }
 
             @Override

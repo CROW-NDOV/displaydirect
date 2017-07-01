@@ -1,5 +1,7 @@
 package nl.crowndov.displaydirect.distribution.transport;
 
+import org.fusesource.mqtt.client.QoS;
+
 /**
  * Copyright 2017 CROW-NDOV
  *
@@ -12,6 +14,11 @@ public class TestTransport implements Transport {
 
     @Override
     public boolean sendMessage(String topic, byte[] data) {
+        return sendMessage(topic, data, QoS.AT_LEAST_ONCE);
+    }
+
+    @Override
+    public boolean sendMessage(String topic, byte[] data, QoS quality) {
         if (onSentListener != null) {
             onSentListener.onMessageSent(topic, data);
             return true;

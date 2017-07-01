@@ -56,6 +56,7 @@ public class MqttClient {
             @Override
             public void onPublish(UTF8Buffer topic, Buffer body, Runnable ack) {
                 msg.onMessage(topic.toString(), body.toByteArray());
+                ack.run();
             }
 
             @Override
