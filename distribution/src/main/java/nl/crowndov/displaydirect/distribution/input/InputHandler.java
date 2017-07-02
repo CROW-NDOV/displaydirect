@@ -42,7 +42,7 @@ public class InputHandler {
         realtime.forEach((key, value) -> {
             SubscriptionStore.getForQuay(key).forEach(sub -> {
                 if (value.size() > 0) {
-                    LOGGER.trace("Publishing to {}", sub.getId());
+                    LOGGER.trace("Publishing on topic '/travel_information' to '{}'", sub.getId());
                     metrics.increaseBucketValue("kv78turbo.messages.sent", ChronoUnit.HOURS);
                     byte[] msg = DisplayDirectMessageFactory.fromRealTime(value, sub);
                     if (msg != null) {

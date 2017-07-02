@@ -95,11 +95,21 @@ public class SubscriptionHandler {
             Log.send(LogCode.SUBSCRIPTION_ADDED, sender, "System subscribed succesfully, authorization already valid");
             return true;
         } else {
-            // TODO: Blocking network call, queue and error handling
-            ValidationToken t = AuthorizationWhitelist.addValidation(sender, sub);
-            LOGGER.info("Validation required for email {}, token = {}", subscribe.getEmail(), t.getToken());
-            sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.AUTHORISATION_REQUIRED);
-            Log.send(LogCode.AUTHORISATION_SENT, sender, "Authorization needed for this subscription/device");
+            // TODO: Blocking network call: timeout?
+            Optional<ValidationToken> t = Optional.empty();
+            try {
+               t = AuthorizationWhitelist.addValidation(sender, sub);
+            } catch (Exception ex) {
+                LOGGER.error("Failed to send authorization code", ex);
+            }
+            if (t.isPresent()) {
+                LOGGER.info("Validation required for email {}, token = {}", subscribe.getEmail(), t.get().getToken());
+                Log.send(LogCode.AUTHORISATION_SENT, sender, "Authorization needed for this subscription/device");
+            } else {
+                LOGGER.info("Validation already send for system {}", sender);
+                Log.send(LogCode.AUTHORISATION_ALREADY_SENT, sender, "Authorization was already previously sent for this device");
+            }
+            sendStatus(sub.getId(), false, DisplayDirectMessage.SubscriptionResponse.Status.AUTHORISATION_REQUIRED); // TODO: Might need to turn this into a new vode
             return true;
         }
     }

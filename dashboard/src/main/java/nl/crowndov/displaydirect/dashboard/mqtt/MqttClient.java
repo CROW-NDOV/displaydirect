@@ -42,7 +42,8 @@ public class MqttClient {
             mqtt.setHost(Configuration.getHostname());
             mqtt.setClientId(Configuration.getClientId());
             mqtt.setCleanSession(false);
-            mqtt.setKeepAlive((short) 90);
+            mqtt.setKeepAlive((short) 10);
+            mqtt.setVersion("3.1.1");
         } catch (URISyntaxException e) {
            LOGGER.error("Error setting host");
         }

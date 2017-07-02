@@ -44,9 +44,9 @@ public class MqttConnection {
 
 
     public void subscribe(String subscrTopic, QoS quality) {
-        Topic[] topics = { new Topic (subscrTopic, QoS.AT_LEAST_ONCE) };
+        Topic[] topics = { new Topic (subscrTopic, quality) };
         connection.subscribe(topics, new Callback<byte[]>() {
-            public void onSuccess(byte[] qoses) { LOGGER.info("Subscribe success for topic {}", subscrTopic); }
+            public void onSuccess(byte[] qoses) { LOGGER.info("Subscribe success for topic {} with quality {}", subscrTopic, quality); }
             public void onFailure(Throwable value) {
                 LOGGER.info("Subscribe failure for topic {}", subscrTopic, value);
             }

@@ -12,7 +12,7 @@ import java.net.URISyntaxException;
 
 /**
  * Copyright 2017 CROW-NDOV
- *
+ * <p>
  * This file is subject to the terms and conditions defined in file 'LICENSE.txt', which is part of this source code package.
  */
 public class MqttClient {
@@ -24,20 +24,21 @@ public class MqttClient {
     private final byte[] disconnect = SubscriptionBuilder.unsubscribe().toByteArray();
     private final String disconnectTopic;
 
-    public MqttClient(String hostname, String uuid, onClientAction msg) {
+    public MqttClient(String hostname, String clientId, onClientAction msg) {
         mqtt = new MQTT();
         try {
             mqtt.setHost(hostname);
         } catch (URISyntaxException e) {
-           LOGGER.error("Error setting host");
+            LOGGER.error("Error setting host");
         }
-        mqtt.setClientId(uuid);
+        mqtt.setClientId(clientId);
         mqtt.setCleanSession(true);
         mqtt.setKeepAlive((short) 90);
         mqtt.setWillMessage(new UTF8Buffer(disconnect));
-        disconnectTopic = TopicFactory.unsubscribe(uuid);
+        disconnectTopic = TopicFactory.unsubscribe(clientId);
         mqtt.setWillTopic(disconnectTopic);
         mqtt.setWillQos(QoS.EXACTLY_ONCE);
+        mqtt.setVersion("3.1.1");
 
         connection = mqtt.callbackConnection();
         MqttConnection connect = new MqttConnection(connection);
@@ -55,6 +56,7 @@ public class MqttClient {
 
             @Override
             public void onPublish(UTF8Buffer topic, Buffer body, Runnable ack) {
+                LOGGER.trace("Got message on topic {}", topic.toString());
                 msg.onMessage(topic.toString(), body.toByteArray());
                 ack.run();
             }
@@ -79,8 +81,21 @@ public class MqttClient {
     }
 
 
-    public void stop() {
-        connection.publish(disconnectTopic, disconnect, QoS.EXACTLY_ONCE, false, null);
+    public void stop(boolean unsubscribe) {
+        if (unsubscribe) { // Try to unsubscribe
+            // TODO: This fails with a QoS of EXACTLY_ONCE, so it never arrives
+            connection.publish(disconnectTopic, disconnect, QoS.AT_LEAST_ONCE, false, new Callback<Void>() {
+                @Override
+                public void onSuccess(Void value) {
+                    LOGGER.info("Successfully sent disconnect");
+                }
+
+                @Override
+                public void onFailure(Throwable value) {
+                    LOGGER.info("Failed to send disconnect", value);
+                }
+            });
+        }
         connection.disconnect(new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {
@@ -89,13 +104,14 @@ public class MqttClient {
 
             @Override
             public void onFailure(Throwable value) {
-                LOGGER.info("Disconnect failure");
+                LOGGER.info("Disconnect failure", value);
             }
         });
     }
 
     public interface onClientAction {
         void onConnect(MqttConnection connection);
+
         void onMessage(String topic, byte[] data);
     }
 }

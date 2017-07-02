@@ -33,7 +33,8 @@ public class MqttClient {
             mqtt.setHost(Configuration.getMqttBrokerHost());
             mqtt.setCleanSession(false);
             mqtt.setClientId(Configuration.getMqttClientId());
-            mqtt.setKeepAlive((short) 60);
+            mqtt.setKeepAlive((short) 10);
+            mqtt.setVersion("3.1.1");
         } catch (URISyntaxException e) {
            LOGGER.error("Error setting host");
         }
@@ -65,8 +66,8 @@ public class MqttClient {
             @Override
             public void onSuccess(Void value) {
                 LOGGER.info("Connection success");
-                subscribe(TopicFactory.subscribe(null), QoS.AT_MOST_ONCE);
-                subscribe(TopicFactory.unsubscribe(null), QoS.AT_MOST_ONCE);
+                subscribe(TopicFactory.subscribe(null), QoS.EXACTLY_ONCE);
+                subscribe(TopicFactory.unsubscribe(null), QoS.EXACTLY_ONCE);
             }
 
             @Override
@@ -76,11 +77,8 @@ public class MqttClient {
         });
     }
 
-    private void subscribe(String topic) {
-        subscribe(topic, QoS.AT_MOST_ONCE);
-    }
-
     private void subscribe(String topic, QoS value) {
+        LOGGER.trace("Subscribing to topic '{}' with QoS {}", topic, value);
         connection.subscribe(new Topic[]{new Topic(topic, value)}, new Callback<byte[]>() {
             @Override
             public void onSuccess(byte[] value) {
@@ -98,6 +96,7 @@ public class MqttClient {
         if (!connected) {
             return false;
         }
+        LOGGER.trace("Sending message to queue '{}' at Qos {}", queue, quality);
         connection.publish(queue, msg, quality, false, new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {

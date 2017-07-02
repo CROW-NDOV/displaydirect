@@ -56,8 +56,8 @@ public class BootListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        LOGGER.info("Got boot destroyed");
         t.stop();
+        LOGGER.info("Got boot destroyed");
     }
 
 }

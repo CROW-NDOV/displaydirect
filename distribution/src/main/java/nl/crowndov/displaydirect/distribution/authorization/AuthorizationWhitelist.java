@@ -72,8 +72,12 @@ public class AuthorizationWhitelist extends AbstractService {
         return systemId + "_" + email.toLowerCase();
     }
 
-    public static ValidationToken addValidation(String systemId, Subscription subscribe) {
-        // TODO: Check there isn't already a validation token for the given key that isn't already expired
+    public static Optional<ValidationToken> addValidation(String systemId, Subscription subscribe) {
+        ZonedDateTime now = ZonedDateTime.now(Configuration.getZoneId());
+        // Check a validation token hasn't already been handed out for this system and it's still valid
+        if (validationTokens.values().stream().anyMatch(vt -> vt.getSystemId().contentEquals(systemId) && vt.getGenerated().plusHours(48).isAfter(now))) {
+            return Optional.empty();
+        }
         ValidationToken v = new ValidationToken(newToken(), systemId, subscribe.getEmail(), ZonedDateTime.now(ZoneId.of("UTC")), subscribe);
         validationTokens.put(v.getToken(), v);
 
@@ -83,7 +87,7 @@ public class AuthorizationWhitelist extends AbstractService {
         variables.put("url", Configuration.getBaseUrl() + "/admin/authorize?token=" + v.getToken());
         EmailUtil.sendHtmlEmail(subscribe.getEmail(), "Rond aanmelding DisplayDirect af", "authenticate", variables);
 
-        return v;
+        return Optional.ofNullable(v);
     }
 
     private static String newToken() {
