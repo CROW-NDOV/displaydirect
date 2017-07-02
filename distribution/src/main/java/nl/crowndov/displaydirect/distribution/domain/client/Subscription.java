@@ -268,6 +268,10 @@ public class Subscription {
         return subscribedQuayCodes.stream().allMatch(StopStore::stopExists);
     }
 
+    public String getPrefix() {
+        return id.split("_", 2)[0];
+    }
+
     public enum FieldDelivery {
         NEVER,
         DELTA,

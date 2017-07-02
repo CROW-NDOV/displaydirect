@@ -20,7 +20,11 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
-        DisplayDirectClient c = new DisplayDirectClient(new Configuration());
+        run(new Configuration());
+    }
+
+    public static void run(Configuration configuration) {
+        DisplayDirectClient c = new DisplayDirectClient(configuration);
         c.setListener(new Listener());
         c.start();
 

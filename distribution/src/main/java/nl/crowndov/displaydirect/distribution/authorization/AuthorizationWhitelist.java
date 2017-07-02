@@ -65,7 +65,7 @@ public class AuthorizationWhitelist extends AbstractService {
 
 
     public static boolean isValid(Subscription sub) {
-        return validKeys.contains(getKey(sub.getId(), sub.getEmail()));
+        return validKeys.contains(getKey(sub.getId(), sub.getEmail())) || Configuration.getAuthorizationWhitelist().contains(sub.getPrefix());
     }
 
     private static String getKey(String systemId, String email) {

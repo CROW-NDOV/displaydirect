@@ -52,6 +52,10 @@ public class Configuration {
         return config.getInt("distribution.authorization.max_age_hours");
     }
 
+    public static List<String> getAuthorizationWhitelist() {
+        return Arrays.asList(config.getStringArray("distribution.authorization.whitelist_prefix"));
+    }
+
     public static String getBaseUrl() {
         return config.getString("distribution.install.base_url", "http://localhost:8080");
     }
@@ -110,4 +114,5 @@ public class Configuration {
     public static String getPlanningCleanupTime() {
         return config.getString("distribution.planning.cleanupTime", "04:00");
     }
+
 }
