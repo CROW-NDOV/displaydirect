@@ -33,11 +33,17 @@ public class MqttClient {
         }
         mqtt.setClientId(clientId);
         mqtt.setCleanSession(true);
-        mqtt.setKeepAlive((short) 90);
+
         mqtt.setWillMessage(new UTF8Buffer(disconnect));
         disconnectTopic = TopicFactory.unsubscribe(clientId);
         mqtt.setWillTopic(disconnectTopic);
         mqtt.setWillQos(QoS.EXACTLY_ONCE);
+
+        mqtt.setKeepAlive((short) 90);
+//        mqtt.setReconnectBackOffMultiplier(2);
+//        mqtt.setConnectAttemptsMax(10000);
+//        mqtt.setReconnectDelay(10);
+//        mqtt.setReconnectDelayMax(10000);
         mqtt.setVersion("3.1.1");
 
         connection = mqtt.callbackConnection();
@@ -63,18 +69,19 @@ public class MqttClient {
 
             @Override
             public void onFailure(Throwable value) {
-                LOGGER.info("MQTT Client failed", value);
+                LOGGER.error("MQTT Client failed", value);
             }
         });
         connection.connect(new Callback<Void>() {
             @Override
             public void onSuccess(Void value) {
+                LOGGER.info("Connected");
                 msg.onConnect(connect);
             }
 
             @Override
             public void onFailure(Throwable value) {
-                LOGGER.info("Connection failure");
+                LOGGER.error("Connection failure");
             }
         });
 

@@ -106,7 +106,7 @@ public class DisplayDirectClient {
     }
 
     public void stop() {
-        client.stop(connect.isCancelled()); // Only send an unsubscribe if we've actually connected
+        client.stop(connect != null && connect.isCancelled()); // Only send an unsubscribe if we've actually connected
         receiver.cancel(true);
         executor.shutdown();
         schedule.shutdown();

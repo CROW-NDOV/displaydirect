@@ -16,10 +16,12 @@ import java.util.stream.IntStream;
 public class TestMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestMain.class);
+    private static final int NUMBER = 500
+            ;
 
     public static void main(String[] args) throws InterruptedException {
-        Executor exec = Executors.newFixedThreadPool(50);
-        IntStream.range(0, 50).forEach(i -> {
+        Executor exec = Executors.newFixedThreadPool(NUMBER);
+        IntStream.range(0, NUMBER).forEach(i -> {
                 exec.execute(() -> Main.run(new TestConfiguration()));
         });
         Thread.sleep(60*1000);

@@ -35,10 +35,10 @@ public class MqttClient {
             mqtt.setClientId(Configuration.getMqttClientId());
 
             mqtt.setKeepAlive((short) 60);
-            mqtt.setReconnectBackOffMultiplier(3);
-            mqtt.setConnectAttemptsMax(10000);
-            mqtt.setReconnectDelay(20);
-            mqtt.setReconnectDelayMax(10000);
+//            mqtt.setReconnectBackOffMultiplier(3);
+//            mqtt.setConnectAttemptsMax(10000);
+//            mqtt.setReconnectDelay(20);
+//            mqtt.setReconnectDelayMax(10000);
             mqtt.setVersion("3.1.1");
 
         } catch (URISyntaxException e) {

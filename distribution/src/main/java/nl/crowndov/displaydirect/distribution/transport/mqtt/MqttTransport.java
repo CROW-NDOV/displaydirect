@@ -1,6 +1,5 @@
 package nl.crowndov.displaydirect.distribution.transport.mqtt;
 
-import nl.crowndov.displaydirect.distribution.input.Kv78ProcessTask;
 import nl.crowndov.displaydirect.distribution.transport.Transport;
 import org.fusesource.mqtt.client.QoS;
 import org.slf4j.Logger;
@@ -13,12 +12,12 @@ import org.slf4j.LoggerFactory;
  */
 public class MqttTransport implements Transport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Kv78ProcessTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MqttTransport.class);
 
     private OnMessageReceivedListener listener = null;
 
     private final MqttClient.OnMessageListener PUBLISH_LISTENER = (topic, data, ack) -> {
-        LOGGER.trace("Got incoming message");
+        LOGGER.trace("Got incoming message on topic {}", topic);
         boolean result = false;
         if (listener != null) {
              result = listener.onMessageReceived(topic, data);

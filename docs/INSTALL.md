@@ -8,7 +8,7 @@ Deze handleiding is gebaseerd op een Ubuntu Server 16.04 of hoger
 1. Installeer de benodigde packages:
 ``
 sudo apt-get update
-sudo apt-get install tomcat8 nginx letsencrypt
+sudo apt-get install tomcat8 nginx letsencrypt screen
 ``
 
 2. Installeer een mqtt broker
@@ -25,7 +25,7 @@ b. EMQTT: ``sudo apt-get install lksctp-tools && wget http://emqtt.io/downloads/
 4. Bewerk de crontab, en voeg de volgende twee regels toe (bij voorkeur net andere tijden)
 
 ``
-23 25 * * *  cd /opt/displaydirect/data/ && wget -N --accept=gz -r http://kv7.openov.nl/GOVI/KV7kalender/ -l 1 -e robots=off && wget -N --accept=gz -r http://kv7.openov.nl/GOVI/KV7planning/ -l 1 -e robots=off
+25 23 * * *  cd /opt/displaydirect/data/ && wget -N --accept=gz -r http://kv7.openov.nl/GOVI/KV7kalender/ -l 1 -e robots=off && wget -N --accept=gz -r http://kv7.openov.nl/GOVI/KV7planning/ -l 1 -e robots=off
 22 00 * * *  cd /opt/displaydirect/data/ && wget -N --accept="PassengerStopAssignmentExport*" -r http://data.ndovloket.nl/haltes/ -l 1 -e robots=off && find data.ndovloket.nl/haltes/* -mtime +1 -exec rm {} \;
 ``
 
